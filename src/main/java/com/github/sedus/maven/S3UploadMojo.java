@@ -79,6 +79,9 @@ public class S3UploadMojo extends AbstractMojo {
     private AmazonS3 s3Client;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
+        if ((filesets == null || filesets.length == 0) && !includeArtifact) {
+            throw new MojoExecutionException("No artifacts to upload. No filesets configured and includeArtifact is false");
+        }
         uploadArtifact();
         uploadFiles();
     }
@@ -99,10 +102,6 @@ public class S3UploadMojo extends AbstractMojo {
                 File dir = new File(project.getBasedir(), fileSet.getDirectory());
                 fileSet.setDirectory(dir.getAbsolutePath());
                 String[] includedFiles = fileSetManager.getIncludedFiles(fileSet);
-
-//                String[] includedDir = fileSetManager.getIncludedDirectories(fileSet);
-//                String[] excludedFiles = fileSetManager.getExcludedFiles(fileSet);
-//                String[] excludedDir = fileSetManager.getExcludedDirectories(fileSet);
 
                 Stream.of(includedFiles).forEach(file -> {
                     uploadFileToBucket(new File(fileSet.getDirectory(), file));
