@@ -9,6 +9,7 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>maven-plugin</packaging>
 
+    <name>s3-maven-plugin</name>
     <description>Maven plugin for easy file uploading to S3 bucket during build</description>
     <url>https://github.com/Sedus/s3-maven-plugin</url>
 
@@ -218,7 +219,7 @@
                 </snapshotRepository>
                 <repository>
                     <id>ossrh</id>
-                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
                 </repository>
             </distributionManagement>
         </profile>
