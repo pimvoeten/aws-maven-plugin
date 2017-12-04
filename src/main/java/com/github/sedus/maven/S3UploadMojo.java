@@ -22,6 +22,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
+/**
+ * Maven Mojo for uploading artifacts and files to S3.
+ */
 @Mojo(name = "upload")
 public class S3UploadMojo extends AbstractMojo {
 
@@ -29,13 +32,13 @@ public class S3UploadMojo extends AbstractMojo {
     private MavenProject project;
 
     /**
-     * Whether the projects artifact is included or not.
+     * <code>true</code> if the projects artifact is included for upload or not.
      */
     @Parameter(property = "upload.includeArtifact", defaultValue = "true")
     private boolean includeArtifact;
 
     /**
-     * Upload to this bucket.
+     * Target bucketname.
      */
     @Parameter(property = "upload.bucket", required = true)
     private String bucket;
@@ -47,25 +50,29 @@ public class S3UploadMojo extends AbstractMojo {
     private String path;
 
     /**
-     * AWS Access key
+     * AWS Access key.
+     * Required in combination with secretKey and region.
      */
     @Parameter(property = "upload.accessKey")
     private String accessKey;
 
     /**
-     * AWS Secret key
+     * AWS Secret key.
+     * Required in combination with accessKey and region.
      */
     @Parameter(property = "upload.secretKey")
     private String secretKey;
 
     /**
-     * Used for authentication on S3 client
+     * Used for authentication on S3 client.
+     * Required in combination with secretKey and accessKey.
      */
     @Parameter(property = "upload.region")
     private String region;
 
     /**
-     * Used for authentication on S3 client
+     * Profile name used for authentication using aws-cli credentials.
+     * Not required when ~/.aws/credentials profile name is default.
      */
     @Parameter(property = "upload.awsProfile")
     private String awsProfile;
@@ -78,12 +85,28 @@ public class S3UploadMojo extends AbstractMojo {
 
     private AmazonS3 s3Client;
 
+    /**
+     * Execute method.
+     *
+     * @throws MojoExecutionException
+     * @throws MojoFailureException
+     */
     public void execute() throws MojoExecutionException, MojoFailureException {
+        validateParams();
+        uploadArtifact();
+        uploadFiles();
+    }
+
+    private void validateParams() throws MojoExecutionException {
+        // Check files to upload
         if ((filesets == null || filesets.length == 0) && !includeArtifact) {
             throw new MojoExecutionException("No artifacts to upload. No filesets configured and includeArtifact is false");
         }
-        uploadArtifact();
-        uploadFiles();
+
+        // Check S3 credentials params
+        if (accessKey == null ^ secretKey == null) {
+            throw new MojoExecutionException("Set both accessKey and secretKey params");
+        }
     }
 
     private void uploadArtifact() {
