@@ -6,10 +6,14 @@ Leave the -SNAPSHOT suffix in version.
 ## Do the actual release    
 Set the version to be released:
 
-    mvn versions:set -DnewVersion=1.2.3
-
-    mvn clean deploy -P release
+    mvn nexus-staging:release -P release
     
+If the staging releaase was not good enough:
+
+    mvn nexus-staging:drop
+
+After releasing, set the new version
+
     mvn versions:set -DnewVersion=1.2.4-SNAPSHOT
 
 Commit everything to github.
