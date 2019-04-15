@@ -4,27 +4,25 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.github.sedus</groupId>
+    <groupId>com.github.pimvoeten</groupId>
     <artifactId>s3-maven-plugin</artifactId>
     <version>1.1-SNAPSHOT</version>
     <packaging>maven-plugin</packaging>
 
     <name>s3-maven-plugin</name>
     <description>Maven plugin for easy file uploading to S3 bucket during build</description>
-    <url>https://github.com/Sedus/s3-maven-plugin</url>
+    <url>https://github.com/pimvoeten/s3-maven-plugin</url>
 
     <scm>
-        <url>https://github.com/Sedus/s3-maven-plugin.git</url>
-        <connection>scm:git:git@github.com:Sedus/s3-maven-plugin.git</connection>
-        <developerConnection>scm:git:git@github.com:Sedus/s3-maven-plugin.git</developerConnection>
+        <url>https://github.com/pimvoeten/s3-maven-plugin</url>
+        <connection>scm:git:git@github.com:pimvoeten/s3-maven-plugin.git</connection>
+        <developerConnection>scm:git:git@github.com:pimvoeten/s3-maven-plugin.git</developerConnection>
     </scm>
 
     <developers>
         <developer>
             <name>Pim Voeten</name>
-            <email>pim.voeten@gmail.com</email>
-            <organization>Sedus</organization>
-            <organizationUrl>https://github.com/Sedus</organizationUrl>
+            <organizationUrl>https://github.com/pimvoeten</organizationUrl>
         </developer>
     </developers>
 
@@ -43,10 +41,10 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-        <maven.install.skip>true</maven.install.skip>
+        <maven.install.skip>false</maven.install.skip>
         <maven.deploy.skip>true</maven.deploy.skip>
         <gpg-plugin.version>1.6</gpg-plugin.version>
-        <aws-java-sdk-s3.version>1.11.229</aws-java-sdk-s3.version>
+        <aws-java-sdk.version>2.5.25</aws-java-sdk.version>
         <file-management.version>3.0.0</file-management.version>
         <maven.version>3.3.9</maven.version>
         <maven-plugin-api.version>3.0</maven-plugin-api.version>
@@ -56,6 +54,18 @@
         <maven-plugin-plugin.version>3.5</maven-plugin-plugin.version>
         <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>bom</artifactId>
+                <version>${aws-java-sdk.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
@@ -92,9 +102,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-s3</artifactId>
-            <version>${aws-java-sdk-s3.version}</version>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>s3</artifactId>
+            <version>${aws-java-sdk.version}</version>
         </dependency>
 
         <dependency>
@@ -141,6 +151,41 @@
     </build>
 
     <profiles>
+        <profile>
+            <id>test</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>${project.groupId}</groupId>
+                        <artifactId>${project.artifactId}</artifactId>
+                        <version>${project.version}</version>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>upload</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <bucket>s3-maven-plugin</bucket>
+                            <path>versions</path>
+                            <createBucket>true</createBucket>
+                            <profile>default</profile>
+                            <includeArtifact>false</includeArtifact>
+                            <filesets>
+                                <fileset>
+                                    <directory>/</directory>
+                                    <includes>
+                                        <include>readme.md</include>
+                                    </includes>
+                                </fileset>
+                            </filesets>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
         <profile>
             <id>release</id>
 

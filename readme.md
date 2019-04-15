@@ -24,7 +24,7 @@ AWS authentication can be done in 3 ways:
            <region>AWS-REGION</region>
     
            <!-- 2) Authenticate by ~/.aws/credentials profile -->
-           <awsProfile>PROFILE-NAME</awsProfile>
+           <profile>PROFILE-NAME</profile>
     
            <!-- Target bucket and path-->
            <bucket>BUCKET-NAME</bucket>
@@ -32,6 +32,9 @@ AWS authentication can be done in 3 ways:
     
            <!-- Include the current projects artifact -->
            <includeArtifact>true</includeArtifact>
+           
+           <!-- Create bucket if it doesn't exist yet -->
+           <createBucket>true</createBucket>
            
            <!-- Add extra files -->
            <filesets>
@@ -54,6 +57,7 @@ AWS authentication can be done in 3 ways:
 | region          | your AWS region **required in combination with accessKey and secretKey** |
 | awsProfile      | The name of the profile from  ~/.aws/credentials. Optional if you already logged in using `aws configure` |
 | bucket          | The name of the AWS bucket to upload to. **required** |
+| createBucket    | Create the bucket if it doesn't exist *optional* |
 | path            | The path to upload to. *Optional*        |
 | includeArtifact | Include the current projects artifact *Optional* |
 | filesets        | Add extra files to upload by setting filesets *Optional* |
