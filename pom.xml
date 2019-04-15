@@ -5,18 +5,18 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.github.pimvoeten</groupId>
-    <artifactId>s3-maven-plugin</artifactId>
+    <artifactId>aws-maven-plugin</artifactId>
     <version>1.1-SNAPSHOT</version>
     <packaging>maven-plugin</packaging>
 
-    <name>s3-maven-plugin</name>
-    <description>Maven plugin for easy file uploading to S3 bucket during build</description>
-    <url>https://github.com/pimvoeten/s3-maven-plugin</url>
+    <name>AWS Maven plugin</name>
+    <description>Maven plugin for integrating AWS into the Maven lifecycle.</description>
+    <url>https://github.com/pimvoeten/aws-maven-plugin</url>
 
     <scm>
-        <url>https://github.com/pimvoeten/s3-maven-plugin</url>
-        <connection>scm:git:git@github.com:pimvoeten/s3-maven-plugin.git</connection>
-        <developerConnection>scm:git:git@github.com:pimvoeten/s3-maven-plugin.git</developerConnection>
+        <url>https://github.com/pimvoeten/aws-maven-plugin</url>
+        <connection>scm:git:git@github.com:pimvoeten/aws-maven-plugin.git</connection>
+        <developerConnection>scm:git:git@github.com:pimvoeten/aws-maven-plugin.git</developerConnection>
     </scm>
 
     <developers>
@@ -104,7 +104,11 @@
         <dependency>
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>s3</artifactId>
-            <version>${aws-java-sdk.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>elasticbeanstalk</artifactId>
         </dependency>
 
         <dependency>
@@ -168,7 +172,7 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <bucket>s3-maven-plugin</bucket>
+                            <bucket>aws-maven-plugin</bucket>
                             <path>versions</path>
                             <createBucket>true</createBucket>
                             <profile>default</profile>
@@ -186,6 +190,7 @@
                 </plugins>
             </build>
         </profile>
+
         <profile>
             <id>release</id>
 
