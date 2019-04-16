@@ -191,27 +191,6 @@
                                     </filesets>
                                 </configuration>
                             </execution>
-                            <execution>
-                                <phase>deploy</phase>
-                                <!--                                <goals>-->
-                                <!--                                    <goal>S3-putObject</goal>-->
-                                <!--                                </goals>-->
-                                <!-- Specific configuration for this goal -->
-                                <configuration>
-                                    <bucket>aws-maven-plugin</bucket>
-                                    <path>versions</path>
-                                    <createBucket>true</createBucket>
-                                    <includeArtifact>false</includeArtifact>
-                                    <filesets>
-                                        <fileset>
-                                            <directory>/</directory>
-                                            <includes>
-                                                <include>readme.md</include>
-                                            </includes>
-                                        </fileset>
-                                    </filesets>
-                                </configuration>
-                            </execution>
                         </executions>
                     </plugin>
                 </plugins>
