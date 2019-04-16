@@ -5,7 +5,7 @@
 
     <groupId>com.github.pimvoeten</groupId>
     <artifactId>aws-maven-plugin</artifactId>
-    <version>0.12</version>
+    <version>0.13-SNAPSHOT</version>
     <packaging>maven-plugin</packaging>
 
     <name>AWS Maven plugin</name>
@@ -41,8 +41,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-        <!--        <maven.install.skip>false</maven.install.skip>-->
-        <!--        <maven.deploy.skip>true</maven.deploy.skip>-->
         <gpg-plugin.version>1.6</gpg-plugin.version>
         <aws-java-sdk.version>2.5.25</aws-java-sdk.version>
         <file-management.version>3.0.0</file-management.version>
@@ -71,7 +69,19 @@
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-plugin-api</artifactId>
-            <version>${maven-plugin-api.version}</version>
+            <version>${maven.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-core</artifactId>
+            <version>${maven.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.maven.shared</groupId>
+            <artifactId>maven-shared-utils</artifactId>
+            <version>3.2.1</version>
         </dependency>
 
         <dependency>
@@ -82,15 +92,22 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-core</artifactId>
-            <version>${maven.version}</version>
-            <scope>provided</scope>
+            <groupId>org.apache.maven.plugin-testing</groupId>
+            <artifactId>maven-plugin-testing-harness</artifactId>
+            <version>${maven-plugin-testing-harness.version}</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-model</artifactId>
+            <version>${maven.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-compat</artifactId>
             <version>${maven.version}</version>
             <scope>test</scope>
         </dependency>
@@ -102,23 +119,6 @@
         </dependency>
 
         <dependency>
-            <groupId>software.amazon.awssdk</groupId>
-            <artifactId>s3</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>software.amazon.awssdk</groupId>
-            <artifactId>elasticbeanstalk</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.maven.plugin-testing</groupId>
-            <artifactId>maven-plugin-testing-harness</artifactId>
-            <version>${maven-plugin-testing-harness.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.12</version>
@@ -126,10 +126,20 @@
         </dependency>
 
         <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>2.12.0</version>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.2.3</version>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>s3</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>elasticbeanstalk</artifactId>
         </dependency>
     </dependencies>
 
@@ -171,7 +181,8 @@
 
                         <executions>
                             <execution>
-                                <phase>package</phase>
+                                <id>Upload Sourcebundle to S3</id>
+                                <phase>install</phase>
                                 <goals>
                                     <goal>S3-putObject</goal>
                                 </goals>
@@ -189,6 +200,19 @@
                                             </includes>
                                         </fileset>
                                     </filesets>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>Create new application version in Beanstalk</id>
+                                <phase>deploy</phase>
+                                <goals>
+                                    <goal>EB-CreateApplicationVersion</goal>
+                                </goals>
+                                <configuration>
+                                    <bucket>aws-maven-plugin</bucket>
+                                    <key>foo</key>
+                                    <applicationName>bar</applicationName>
+                                    <versionLabel>1.0</versionLabel>
                                 </configuration>
                             </execution>
                         </executions>
