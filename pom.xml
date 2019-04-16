@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.github.pimvoeten</groupId>
@@ -40,7 +41,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-        <maven.install.skip>true</maven.install.skip>
+        <maven.install.skip>false</maven.install.skip>
         <maven.deploy.skip>true</maven.deploy.skip>
         <gpg-plugin.version>1.6</gpg-plugin.version>
         <aws-java-sdk.version>2.5.25</aws-java-sdk.version>
@@ -147,7 +148,7 @@
                 <artifactId>maven-plugin-plugin</artifactId>
                 <version>${maven-plugin-plugin.version}</version>
                 <configuration>
-                    <goalPrefix>s3</goalPrefix>
+                    <goalPrefix>aws</goalPrefix>
                 </configuration>
             </plugin>
         </plugins>
@@ -162,29 +163,56 @@
                         <groupId>${project.groupId}</groupId>
                         <artifactId>${project.artifactId}</artifactId>
                         <version>${project.version}</version>
+
+                        <!-- Default configuration -->
+                        <configuration>
+                            <profile>default</profile>
+                        </configuration>
+
                         <executions>
                             <execution>
                                 <phase>package</phase>
                                 <goals>
-                                    <goal>upload</goal>
+                                    <goal>S3-putObject</goal>
                                 </goals>
+                                <!-- Specific configuration for this goal -->
+                                <configuration>
+                                    <bucket>aws-maven-plugin</bucket>
+                                    <path>versions</path>
+                                    <createBucket>true</createBucket>
+                                    <includeArtifact>false</includeArtifact>
+                                    <filesets>
+                                        <fileset>
+                                            <directory>/</directory>
+                                            <includes>
+                                                <include>readme.md</include>
+                                            </includes>
+                                        </fileset>
+                                    </filesets>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <phase>deploy</phase>
+                                <!--                                <goals>-->
+                                <!--                                    <goal>S3-putObject</goal>-->
+                                <!--                                </goals>-->
+                                <!-- Specific configuration for this goal -->
+                                <configuration>
+                                    <bucket>aws-maven-plugin</bucket>
+                                    <path>versions</path>
+                                    <createBucket>true</createBucket>
+                                    <includeArtifact>false</includeArtifact>
+                                    <filesets>
+                                        <fileset>
+                                            <directory>/</directory>
+                                            <includes>
+                                                <include>readme.md</include>
+                                            </includes>
+                                        </fileset>
+                                    </filesets>
+                                </configuration>
                             </execution>
                         </executions>
-                        <configuration>
-                            <bucket>aws-maven-plugin</bucket>
-                            <path>versions</path>
-                            <createBucket>true</createBucket>
-                            <profile>default</profile>
-                            <includeArtifact>false</includeArtifact>
-                            <filesets>
-                                <fileset>
-                                    <directory>/</directory>
-                                    <includes>
-                                        <include>readme.md</include>
-                                    </includes>
-                                </fileset>
-                            </filesets>
-                        </configuration>
                     </plugin>
                 </plugins>
             </build>
@@ -250,15 +278,9 @@
                     <plugin>
                         <artifactId>maven-deploy-plugin</artifactId>
                         <version>2.8.2</version>
-                        <executions>
-                            <execution>
-                                <id>default-deploy</id>
-                                <phase>deploy</phase>
-                                <goals>
-                                    <goal>deploy</goal>
-                                </goals>
-                            </execution>
-                        </executions>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
                     </plugin>
 
                     <plugin>
@@ -269,7 +291,7 @@
                         <configuration>
                             <serverId>ossrh</serverId>
                             <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                            <autoReleaseAfterClose>false</autoReleaseAfterClose>
+                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -280,11 +302,6 @@
                     <id>ossrh</id>
                     <url>https://oss.sonatype.org/content/repositories/snapshots</url>
                 </snapshotRepository>
-                <repository>
-                    <id>ossrh</id>
-                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/
-                    </url>
-                </repository>
             </distributionManagement>
         </profile>
     </profiles>

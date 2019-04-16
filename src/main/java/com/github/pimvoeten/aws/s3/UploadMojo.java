@@ -26,7 +26,7 @@ import java.util.stream.Stream;
 /**
  * Maven Mojo for uploading artifacts and files to S3.
  */
-@Mojo(name = "upload")
+@Mojo(name = "S3-putObject")
 public class UploadMojo extends AbstractAwsMojo {
 
     /**
