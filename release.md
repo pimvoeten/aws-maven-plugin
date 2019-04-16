@@ -1,16 +1,9 @@
-## Deploy to snapshot version to staging nexus:
-Leave the -SNAPSHOT suffix in version.
-
-    mvn clean deploy -P release
-
-## Do the actual release    
-Set the version to be released:
+## Deploy a new version to Maven Central
 
     mvn versions:set -DnewVersion=1.2.3
-
     mvn clean deploy -P release
-    
-    mvn versions:set -DnewVersion=1.2.4-SNAPSHOT
+    mvn nexus-staging:release -P release
 
-Commit everything to github.
+If something went wrong, you can do:
 
+    mvn nexus-staging:drop
