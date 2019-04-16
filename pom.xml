@@ -9,6 +9,7 @@
 
     <name>AWS Maven plugin</name>
     <description>Maven plugin for integrating AWS into the Maven lifecycle.</description>
+    <url>https://github.com/pimvoeten/aws-maven-plugin</url>
 
     <scm>
         <url>https://github.com/pimvoeten/aws-maven-plugin</url>
