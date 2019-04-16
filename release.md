@@ -1,6 +1,8 @@
 ## Deploy a new version to Maven Central
 
-    mvn versions:set -DnewVersion=1.2.3
+Set the version to a release version (without the -SNAPSHHOT suffix)
+
+    mvn versions:set
     mvn clean deploy -P release
     mvn nexus-staging:release -P release
 
