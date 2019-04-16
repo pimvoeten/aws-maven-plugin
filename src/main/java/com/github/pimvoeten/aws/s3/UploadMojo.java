@@ -7,7 +7,6 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.shared.model.fileset.FileSet;
 import org.apache.maven.shared.model.fileset.util.FileSetManager;
-import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.http.SdkHttpResponse;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.CreateBucketConfiguration;
@@ -27,25 +26,28 @@ import java.util.stream.Stream;
  * Maven Mojo for uploading artifacts and files to S3.
  */
 @Mojo(name = "S3-putObject")
-public class UploadMojo extends AbstractAwsMojo {
+public class UploadMojo extends AbstractAwsMojo<S3Client> {
 
     /**
      * <code>true</code> if the projects artifact is included for upload or not.
      */
-    @Parameter(property = "includeArtifact", defaultValue = "true")
+    @Parameter(property = "includeArtifact",
+               defaultValue = "true")
     private boolean includeArtifact;
 
     /**
      * Target bucketname.
      */
-    @Parameter(property = "bucket", required = true)
+    @Parameter(property = "bucket",
+               required = true)
     private String bucket;
 
     /**
      * Should the bucket be created if it doesn't exists yet
      * default <code>false</code>
      */
-    @Parameter(property = "createBucket", defaultValue = "false")
+    @Parameter(property = "createBucket",
+               defaultValue = "false")
     private boolean createBucket;
 
     /**
@@ -68,12 +70,13 @@ public class UploadMojo extends AbstractAwsMojo {
      * @throws MojoExecutionException
      * @throws MojoFailureException
      */
-    public void execute() throws MojoExecutionException, MojoFailureException {
+    protected void doExecute() throws MojoExecutionException {
         try {
             validateParams();
             boolean bucketExists = doesBucketExist();
             if (!bucketExists && !createBucket) {
-                throw new MojoExecutionException("Bucket [" + this.bucket + "] does not exists. Create the bucket or configure this plugin to create the bucket.");
+                throw new MojoExecutionException(
+                    "Bucket [" + this.bucket + "] does not exists. Create the bucket or configure this plugin to create the bucket.");
             }
             if (!bucketExists && createBucket) {
                 createBucket();
@@ -87,8 +90,6 @@ public class UploadMojo extends AbstractAwsMojo {
             if (sdkHttpResponse.statusCode() == 403) {
                 getLog().error("Invalid credentials");
             }
-        } catch (SdkClientException e) {
-            getLog().error(e);
         }
     }
 
@@ -105,7 +106,7 @@ public class UploadMojo extends AbstractAwsMojo {
     }
 
     private boolean doesBucketExist() {
-        S3Client s3 = this.getS3Client();
+        S3Client s3 = this.getClient();
         try {
             HeadBucketResponse headBucketResponse = s3.headBucket(HeadBucketRequest.builder().bucket(this.bucket).build());
             return 200 == headBucketResponse.sdkHttpResponse().statusCode();
@@ -116,13 +117,13 @@ public class UploadMojo extends AbstractAwsMojo {
 
     private void createBucket() {
         getLog().info("Creating bucket [" + this.bucket + "]");
-        S3Client s3 = this.getS3Client();
+        S3Client s3 = this.getClient();
         CreateBucketRequest createBucketRequest = CreateBucketRequest
-                .builder()
-                .bucket(bucket)
-                .createBucketConfiguration(
-                        CreateBucketConfiguration.builder().build())
-                .build();
+            .builder()
+            .bucket(bucket)
+            .createBucketConfiguration(
+                CreateBucketConfiguration.builder().build())
+            .build();
         CreateBucketResponse response = s3.createBucket(createBucketRequest);
 
         getLog().info("Bucket created: " + response.toString());
@@ -152,32 +153,32 @@ public class UploadMojo extends AbstractAwsMojo {
     }
 
     private void uploadFileToBucket(Path file) {
-        S3Client s3 = getS3Client();
+        S3Client s3 = getClient();
         String key = path != null ? path + "/" : "";
         key += file.getFileName().toString();
 
         getLog().info("Uploading: " + file.toString());
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                .bucket(bucket)
-                .key(key)
-                .build();
+            .bucket(bucket)
+            .key(key)
+            .build();
         s3.putObject(putObjectRequest, file);
     }
 
     /**
-     * Create a S3Client
+     * Create S3Client
      *
      * @return
      */
-    private S3Client getS3Client() {
+    @Override
+    protected S3Client getClient() {
         if (s3Client == null) {
             this.s3Client = S3Client.builder()
-                    .credentialsProvider(getAwsCredentialsProviderChain())
-                    .region(getRegion())
-                    .build();
+                .credentialsProvider(getAwsCredentialsProviderChain())
+                .region(getRegion())
+                .build();
         }
         return s3Client;
     }
-
 
 }
