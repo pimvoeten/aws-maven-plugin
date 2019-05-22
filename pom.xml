@@ -5,7 +5,7 @@
 
     <groupId>com.github.pimvoeten</groupId>
     <artifactId>aws-maven-plugin</artifactId>
-    <version>1.0</version>
+    <version>1.1</version>
     <packaging>maven-plugin</packaging>
 
     <name>AWS Maven plugin</name>
@@ -167,6 +167,12 @@
     <profiles>
         <profile>
             <id>test</id>
+
+            <properties>
+                <maven.install.skip>true</maven.install.skip>
+                <maven.deploy.skip>true</maven.deploy.skip>
+            </properties>
+
             <build>
                 <plugins>
                     <plugin>
@@ -202,9 +208,10 @@
                                     </filesets>
                                 </configuration>
                             </execution>
+
                             <execution>
                                 <id>Create new application version in Beanstalk</id>
-                                <phase>deploy</phase>
+                                <phase>install</phase>
                                 <goals>
                                     <goal>EB-CreateApplicationVersion</goal>
                                 </goals>
@@ -213,6 +220,19 @@
                                     <key>foo</key>
                                     <applicationName>bar</applicationName>
                                     <versionLabel>1.0</versionLabel>
+                                </configuration>
+                            </execution>
+
+                            <execution>
+                                <id>Deploy new application version in Beanstalk</id>
+                                <phase>deploy</phase>
+                                <goals>
+                                    <goal>EB-UpdateEnvironment</goal>
+                                </goals>
+                                <configuration>
+                                    <applicationName>bar</applicationName>
+                                    <versionLabel>1.0</versionLabel>
+                                    <environmentName>bar</environmentName>
                                 </configuration>
                             </execution>
                         </executions>

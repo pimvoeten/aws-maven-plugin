@@ -11,8 +11,10 @@ import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.SdkClient;
 import software.amazon.awssdk.core.exception.SdkClientException;
+import software.amazon.awssdk.http.SdkHttpResponse;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.regions.providers.DefaultAwsRegionProviderChain;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 
 public abstract class AbstractAwsMojo<S extends SdkClient> extends AbstractMojo {
 
@@ -62,8 +64,14 @@ public abstract class AbstractAwsMojo<S extends SdkClient> extends AbstractMojo 
         try {
             this.validateCredentials();
             this.doExecute();
-        } catch (SdkClientException e) {
-            getLog().error(e);
+        } catch (S3Exception e) {
+            SdkHttpResponse sdkHttpResponse = e.awsErrorDetails().sdkHttpResponse();
+            if (sdkHttpResponse.statusCode() == 403) {
+                throw new MojoExecutionException("Invalid credentials");
+            }
+        } catch (
+            SdkClientException e) {
+            throw new MojoExecutionException(e.getMessage());
         }
 
     }
