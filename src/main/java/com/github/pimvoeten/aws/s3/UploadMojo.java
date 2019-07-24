@@ -98,11 +98,6 @@ public class UploadMojo extends AbstractAwsMojo<S3Client> {
         if ((filesets == null || filesets.length == 0) && !includeArtifact) {
             throw new MojoExecutionException("No artifacts to upload. No filesets configured and includeArtifact is false");
         }
-
-        // Check S3 credentials params
-        if (accessKey == null ^ secretKey == null) {
-            throw new MojoExecutionException("Set both accessKey and secretKey params");
-        }
     }
 
     private boolean doesBucketExist() {

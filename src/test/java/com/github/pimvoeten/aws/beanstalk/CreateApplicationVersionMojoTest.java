@@ -19,7 +19,7 @@ public class CreateApplicationVersionMojoTest extends AbstractMojoTestCase {
     }
 
     public void testProfileAndCredentials() throws Exception {
-        File pom = getTestFile("src/test/resources/bothCredentialsPom.xml");
+        File pom = getTestFile("src/test/resources/beanstalk/createApplicationVersion.xml");
         assertNotNull(pom);
         assertTrue(pom.exists());
 

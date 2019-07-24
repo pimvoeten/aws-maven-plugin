@@ -9,3 +9,11 @@ Set the version to a release version (without the -SNAPSHHOT suffix)
 If something went wrong, you can do:
 
     mvn nexus-staging:drop
+
+## Troubleshooting
+
+Sometimes the nexus-staging-maven-plugin shows errors and warnings:
+
+    An illegal reflective access operation has occurred
+
+It seems to go away when executed a second time.

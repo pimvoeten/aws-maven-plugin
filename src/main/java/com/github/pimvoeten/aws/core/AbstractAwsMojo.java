@@ -7,12 +7,16 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProviderChain;
+import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.SdkClient;
 import software.amazon.awssdk.core.exception.SdkClientException;
+import software.amazon.awssdk.core.exception.SdkServiceException;
+import software.amazon.awssdk.http.SdkHttpResponse;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.regions.providers.DefaultAwsRegionProviderChain;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 
 public abstract class AbstractAwsMojo<S extends SdkClient> extends AbstractMojo {
 
@@ -62,14 +66,24 @@ public abstract class AbstractAwsMojo<S extends SdkClient> extends AbstractMojo 
         try {
             this.validateCredentials();
             this.doExecute();
-        } catch (SdkClientException e) {
-            getLog().error(e);
+        } catch (SdkServiceException e) {
+//            SdkHttpResponse sdkHttpResponse = e.awsErrorDetails().sdkHttpResponse();
+            if (e.statusCode() == 403) {
+                throw new MojoExecutionException("Invalid credentials");
+            }
+        } catch (
+            SdkClientException e) {
+            throw new MojoExecutionException(e.getMessage());
         }
 
     }
 
     private void validateCredentials() throws MojoExecutionException {
         boolean profileUsed = profile != null;
+
+        if (profile == null && accessKey == null && secretKey == null) {
+            throw new MojoExecutionException("No credentials configured");
+        }
 
         if (profileUsed && (accessKey != null | secretKey != null)) {
             throw new MojoExecutionException("Set credentials or use profile, not both");
@@ -105,6 +119,7 @@ public abstract class AbstractAwsMojo<S extends SdkClient> extends AbstractMojo 
     protected AwsCredentialsProviderChain getAwsCredentialsProviderChain() {
         AwsCredentialsProviderChain.Builder credentialsProviderChainBuilder = AwsCredentialsProviderChain.builder();
 
+        // use given profile
         if (this.profile != null) {
             credentialsProviderChainBuilder.addCredentialsProvider(
                 ProfileCredentialsProvider.builder()
@@ -113,12 +128,27 @@ public abstract class AbstractAwsMojo<S extends SdkClient> extends AbstractMojo 
             );
         }
 
+        // use given access- and secretKey
         if (accessKey != null && secretKey != null) {
             AwsBasicCredentials awsCreds = AwsBasicCredentials.create(
                 accessKey,
                 secretKey);
             credentialsProviderChainBuilder.addCredentialsProvider(StaticCredentialsProvider.create(awsCreds));
         }
+
+//        // use STS
+//        if(true) {
+//
+////            role_arn = arn:aws:iam::402953243051:role/roparun-prod-role
+////            source_profile = rino
+//
+//                Aws
+//            AwsSessionCredentials sessionCredentials = AwsSessionCredentials.create(
+//                accessKey,
+//                secretKey,
+//                session_creds.getSessionToken());
+//            credentialsProviderChainBuilder.addCredentialsProvider(StaticCredentialsProvider.create(sessionCredentials));
+//        }
 
         return credentialsProviderChainBuilder.build();
     }

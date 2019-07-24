@@ -1,0 +1,24 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.apache.maven.plugin.my.unit</groupId>
+    <artifactId>test-pom</artifactId>
+    <version>1.0-test</version>
+    <packaging>jar</packaging>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.github.pimvoeten</groupId>
+                <artifactId>aws-maven-plugin</artifactId>
+                <configuration>
+                    <profile>someProfile</profile>
+                    <accessKey>foo</accessKey>
+                    <secretKey>bar</secretKey>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
