@@ -7,7 +7,6 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.shared.model.fileset.FileSet;
 import org.apache.maven.shared.model.fileset.util.FileSetManager;
-import software.amazon.awssdk.http.SdkHttpResponse;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.CreateBucketConfiguration;
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
@@ -16,7 +15,6 @@ import software.amazon.awssdk.services.s3.model.HeadBucketRequest;
 import software.amazon.awssdk.services.s3.model.HeadBucketResponse;
 import software.amazon.awssdk.services.s3.model.NoSuchBucketException;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import software.amazon.awssdk.services.s3.model.S3Exception;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -71,26 +69,19 @@ public class UploadMojo extends AbstractAwsMojo<S3Client> {
      * @throws MojoFailureException
      */
     protected void doExecute() throws MojoExecutionException {
-        try {
-            validateParams();
-            boolean bucketExists = doesBucketExist();
-            if (!bucketExists && !createBucket) {
-                throw new MojoExecutionException(
-                    "Bucket [" + this.bucket + "] does not exists. Create the bucket or configure this plugin to create the bucket.");
-            }
-            if (!bucketExists && createBucket) {
-                createBucket();
-            }
-            if (includeArtifact) {
-                uploadArtifact();
-            }
-            uploadFiles();
-        } catch (S3Exception e) {
-            SdkHttpResponse sdkHttpResponse = e.awsErrorDetails().sdkHttpResponse();
-            if (sdkHttpResponse.statusCode() == 403) {
-                getLog().error("Invalid credentials");
-            }
+        validateParams();
+        boolean bucketExists = doesBucketExist();
+        if (!bucketExists && !createBucket) {
+            throw new MojoExecutionException(
+                "Bucket [" + this.bucket + "] does not exists. Create the bucket or configure this plugin to create the bucket.");
         }
+        if (!bucketExists && createBucket) {
+            createBucket();
+        }
+        if (includeArtifact) {
+            uploadArtifact();
+        }
+        uploadFiles();
     }
 
     private void validateParams() throws MojoExecutionException {
