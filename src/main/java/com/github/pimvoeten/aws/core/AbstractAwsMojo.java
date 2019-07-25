@@ -7,16 +7,13 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProviderChain;
-import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.SdkClient;
 import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.core.exception.SdkServiceException;
-import software.amazon.awssdk.http.SdkHttpResponse;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.regions.providers.DefaultAwsRegionProviderChain;
-import software.amazon.awssdk.services.s3.model.S3Exception;
 
 public abstract class AbstractAwsMojo<S extends SdkClient> extends AbstractMojo {
 
@@ -67,7 +64,6 @@ public abstract class AbstractAwsMojo<S extends SdkClient> extends AbstractMojo 
             this.validateCredentials();
             this.doExecute();
         } catch (SdkServiceException e) {
-//            SdkHttpResponse sdkHttpResponse = e.awsErrorDetails().sdkHttpResponse();
             if (e.statusCode() == 403) {
                 throw new MojoExecutionException("Invalid credentials");
             }
@@ -135,20 +131,6 @@ public abstract class AbstractAwsMojo<S extends SdkClient> extends AbstractMojo 
                 secretKey);
             credentialsProviderChainBuilder.addCredentialsProvider(StaticCredentialsProvider.create(awsCreds));
         }
-
-//        // use STS
-//        if(true) {
-//
-////            role_arn = arn:aws:iam::402953243051:role/roparun-prod-role
-////            source_profile = rino
-//
-//                Aws
-//            AwsSessionCredentials sessionCredentials = AwsSessionCredentials.create(
-//                accessKey,
-//                secretKey,
-//                session_creds.getSessionToken());
-//            credentialsProviderChainBuilder.addCredentialsProvider(StaticCredentialsProvider.create(sessionCredentials));
-//        }
 
         return credentialsProviderChainBuilder.build();
     }

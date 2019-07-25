@@ -8,6 +8,22 @@ AWS needs authentication which can be done in 3 ways:
 2. set a profile in the pom. The profile can be configured using aws-cli ```aws configure``` (profiles and keys are stored in ~/.aws/credentials)
 3. default profile from aws-cli (no xml config needed)
 
+### Use of assumedRoles
+Sometimes users can be given temporal permissions on a different account. This can be done by using assumedRoles. 
+Configuration in the credentials files can look like this:
+
+    [usual-profile-name]
+    aws_access_key_id=...
+    aws_secret_access_key=...
+    
+    [assumedrole-profile-name]
+    role_arn = <arn of role on different account>
+    source_profile = usual-profile-name
+
+What will happen is that the assumed role is linked to the usual profile. The usual credentials are used to get a session token from STS, which is used to
+perform actions on that different account.
+In this setup use ***[assumedrole-profile-name]*** in the configuration.
+
 ## General configuration
 
 ```

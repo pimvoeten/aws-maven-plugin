@@ -5,8 +5,6 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import software.amazon.awssdk.services.elasticbeanstalk.ElasticBeanstalkClient;
-import software.amazon.awssdk.services.elasticbeanstalk.model.CreateApplicationVersionRequest;
-import software.amazon.awssdk.services.elasticbeanstalk.model.S3Location;
 import software.amazon.awssdk.services.elasticbeanstalk.model.UpdateEnvironmentRequest;
 
 @Mojo(name = "EB-UpdateEnvironment")
