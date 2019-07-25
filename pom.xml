@@ -5,7 +5,7 @@
 
     <groupId>com.github.pimvoeten</groupId>
     <artifactId>aws-maven-plugin</artifactId>
-    <version>1.2-SNAPSHOT</version>
+    <version>1.2</version>
     <packaging>maven-plugin</packaging>
 
     <name>AWS Maven plugin</name>
